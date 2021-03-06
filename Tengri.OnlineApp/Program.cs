@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using log4net;
 using log4net.Config;
 using Tengri.ServiceUser;
-using userIin;
 namespace Tengri.OnlineApp
 {
     class Program
@@ -12,7 +11,7 @@ namespace Tengri.OnlineApp
         private static ILog log = LogManager.GetLogger("LOGGER");
         public static void tengriUI()
         {
-            ServicesUser service = new ServicesUser(@"bank.db");
+            ServicesUser service = new ServicesUser(@"newBank.db");
 
             string Iin = null;
             string password = null;
@@ -27,7 +26,7 @@ namespace Tengri.OnlineApp
             Console.Clear();
             if (service.userAuthentication(Iin, password))
             {
-                Console.WriteLine("Welcome {0}", service.userDoesExist(Iin).userData.firstName);
+                Console.WriteLine("Welcome {0}", service.userDoesExist(Iin).firstName);
                 Console.WriteLine("================ MENU =================");
                 Console.WriteLine("1. Change password");
                 Console.WriteLine("2. Block your account");
@@ -56,15 +55,15 @@ namespace Tengri.OnlineApp
         public static void userRegistration(ServicesUser service)
         {
             string tempStr = null;
-            User newUser = new User();
             Console.Clear();
             Console.WriteLine("======Registration=====");
             Console.WriteLine("Enter your IIN");
             tempStr = Console.ReadLine();
-            newUser.userData = userParse.getUserData(tempStr);
-            if (newUser.userData!=null)
+            User newUser = userParse.GetUserData(tempStr);
+            if (newUser.userIin != null)
+            {
                 service.userRegistration(newUser);
-            
+            }
             else
             {
                 Console.WriteLine("There is no such IIN, try again");
@@ -82,7 +81,9 @@ namespace Tengri.OnlineApp
         static void Main(string[] args)
         {
             XmlConfigurator.Configure();
+            ServicesUser service = new ServicesUser(@"bank.db");
             log.Info("Does work");
+            //userRegistration(new ServicesUser(@"bank.db"));
             tengriUI();
 
 

@@ -2,13 +2,13 @@
 using RestSharp;
 using log4net;
 using log4net.Config;
-namespace userIin
+namespace Tengri.ServiceUser
 {
     public class userParse 
     {
         private static ILog log = LogManager.GetLogger("LOGGER");
 
-        public static userDetail getUserData(string iin)
+        public static User GetUserData(string iin)
         {
             XmlConfigurator.Configure();
             try
@@ -16,7 +16,7 @@ namespace userIin
                 var request = new RestRequest("/api-form/load-info-by-iin/?iin=" + iin + "&params[city_check]=true", Method.GET);
                 IRestResponse response = GetResponse(GetClient(), request);
                 var error = response.ErrorException;
-                userDetail data = new userDetail(response.Content);
+                User data = new User(response.Content);
                 return data;
             }
             catch (Exception ex)

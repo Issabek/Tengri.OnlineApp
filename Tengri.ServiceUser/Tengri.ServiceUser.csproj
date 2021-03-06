@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tengri.DAL\Tengri.DAL.csproj" />
-    <ProjectReference Include="..\userIin\userIin.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="RestSharp" Version="106.11.7" />
   </ItemGroup>
 </Project>

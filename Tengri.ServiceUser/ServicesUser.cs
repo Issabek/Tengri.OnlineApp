@@ -13,16 +13,17 @@ namespace Tengri.ServiceUser
         }
         public void showUsers()
         {
-            foreach(User user in db.getCollection<User>())
+            List<User> tempList = db.getCollection<User>();
+            foreach (User user in tempList)
             {
-                Console.WriteLine(user.fullname+" "+user.userData.userIin);
+                Console.WriteLine(user.fullname+" "+user.userIin);
             }
         }
         //1.User registration
         public bool userRegistration(User user)
         {
             string tempStr = null;
-            if (user.userData == null)
+            if (user.firstName == null)
             {
                 return false;
             }
@@ -34,7 +35,7 @@ namespace Tengri.ServiceUser
                 }
                 else
                 {
-                    user.fullname = user.userData.lastName + " " + user.userData.lastName;
+                    user.fullname = user.lastName + " " + user.lastName;
                     //user.id = user.userData.DocNumber;
                     user.createdate = DateTime.Now;
                     //user.status temp user status
@@ -47,7 +48,9 @@ namespace Tengri.ServiceUser
         public User userDoesExist(string Iin)
         {
             List<User> myUsers = db.getCollection<User>();
-            return myUsers.Where(w => w.userData.userIin == Iin ).FirstOrDefault();
+            if (myUsers != null) 
+                return myUsers.Where(w => w.userIin == Iin ).FirstOrDefault();
+            return null;
         }
         //3.User authorization
         public bool userAuthentication(string Iin, string password)
