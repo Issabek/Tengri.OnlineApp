@@ -22,11 +22,11 @@ namespace Tengri.DAL
             using (var db = new LiteDatabase(ConnectionDb))
             {
                 var myObj = db.GetCollection<T>(typeof(T).Name);
-                if (myObj.Count() > 0)
-                {
+                //if (myObj.Count() > 0)
+                //{
                     return myObj.FindAll().ToList();
-                }
-                return null;
+                //}
+                //return null;
             }
         }
 

@@ -23,7 +23,11 @@ namespace ServiceAccount
         {
             List<Account> accounts = new List<Account>();
             accounts = db.getCollection<Account>();
-            return accounts.Where(w => w.userID == userId).ToList();
+            if (accounts != null)
+            {
+                return accounts.Where(w => w.userID == userId).ToList();
+            }
+            return accounts.ToList();
         }
         public bool CreateAccount(int userId, out Account account)
         {
@@ -34,10 +38,13 @@ namespace ServiceAccount
             {
                 Random rnd = new Random();
                 string tempStr = null;
-                account.userID = userId;
+                User user = service.showSingleUser(userId);
+                account.userID = user.id;
+                account.status = user.status;
                 account.IBAN = "KZ" + rnd.Next(1000000, 9999999);
                 if(db.userCreate(account, out tempStr))
                 {
+                    Console.WriteLine("Счет для пользователя {0} успешно создан", service.showSingleUser(userId).firstName);
                     return true;
                 }
                 else

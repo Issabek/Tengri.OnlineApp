@@ -11,6 +11,12 @@ namespace Tengri.ServiceUser
         {
             db = new DAL.LiteDbEntity(connectionString);
         }
+        public User showSingleUser(int userID)
+        {
+            User user = db.getCollection<User>().Where(x=>x.id==userID).FirstOrDefault();
+            return user;
+            
+        }
         public void showUsers()
         {
             List<User> tempList = db.getCollection<User>();

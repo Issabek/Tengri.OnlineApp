@@ -2,6 +2,8 @@
 using Tengri.ServiceUser;
 using log4net;
 using log4net.Config;
+using ServiceAccount;
+using System.Collections.Generic;
 
 namespace Tengri.OnlineApp
 {
@@ -10,14 +12,14 @@ namespace Tengri.OnlineApp
         private static ILog log = LogManager.GetLogger("LOGGER");
         public static void tengriUI()
         {
-            ServicesUser service = new ServicesUser(@"myNewBank2.db");
+            ServicesUser service = new ServicesUser(@"myNewBank3.db");
             Console.Clear();
             string Iin = null;
             string password = null;
             string tempStr = null;
             char yesNo = ' ';
             Random rnd = new Random();
-            User user = new User();
+            User user = null;
             Console.WriteLine("Welcome to tengri bank!");
             Console.WriteLine("Enter your IIN");
             Iin = Console.ReadLine();
@@ -26,11 +28,14 @@ namespace Tengri.OnlineApp
             Console.Clear();
             if (service.userAuthentication(Iin, password) && service.userDoesExist(Iin).status == 1)
             {
+                user = service.userDoesExist(Iin);
                 Console.WriteLine("Welcome {0}", service.userDoesExist(Iin).firstName);
                 Console.WriteLine("================ MENU =================");
                 Console.WriteLine("1. Change password");
                 Console.WriteLine("2. Block your account");
                 Console.WriteLine("3. Leave account");
+                Console.WriteLine("4. Open/Create bank account");
+                SettingsAccount accService = new SettingsAccount(@"myNewBank2.db");
                 tempStr = Console.ReadLine();
                 switch (Int32.Parse(tempStr))
                 {
@@ -43,10 +48,39 @@ namespace Tengri.OnlineApp
                         service.changeUserPassword(Iin, tempStr, password);
                         break;
                     case 2:
-                        service.userBlock(service.userDoesExist(Iin));
+                        service.userBlock(user);
                         break;
                     case 3:
                         tengriUI();
+                        break;
+                    case 4:
+                        Console.Clear();
+                        int listCounter = 1;
+                        List<Account> userAccs = accService.GetUserAccounts(user.id);
+                        if (userAccs.Count > 0 && userAccs!=null)
+                        {
+                            foreach (var account in accService.GetUserAccounts(user.id))
+                                Console.WriteLine("{0}. {1} --- {2}TENGE --- STATUS ID {3} ", listCounter++, account.IBAN, account.balance, account.status);
+                            Console.WriteLine("Хотите создать новый счет?");
+                            yesNo = char.Parse(Console.ReadLine());
+                            if (yesNo == 'y')
+                            {
+                                Console.Clear();
+                                Account tempAccount = new Account();
+                                accService.CreateAccount(user.id, out tempAccount);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Данный пользователь не имеет банковских счетов, хотите создать новый?");
+                            yesNo = char.Parse(Console.ReadLine());
+                            if (yesNo == 'y')
+                            {
+                                Console.Clear();
+                                Account tempAccount = new Account();
+                                accService.CreateAccount(user.id,out tempAccount);
+                            }
+;                        }
                         break;
                     default:
                         break;
@@ -111,6 +145,7 @@ namespace Tengri.OnlineApp
                     else
                     {
                         Console.Clear();
+                        service.showUsers();
                         Console.WriteLine("Перехожу в главное меню!\nНажмите Enter");
                         Console.ReadKey();
                         tengriUI();
@@ -119,7 +154,6 @@ namespace Tengri.OnlineApp
 
                 }
                 
-                service.showUsers();
                 Console.ReadKey();
             }
         }
