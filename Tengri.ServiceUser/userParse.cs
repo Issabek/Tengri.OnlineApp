@@ -16,7 +16,11 @@ namespace Tengri.ServiceUser
                 var request = new RestRequest("/api-form/load-info-by-iin/?iin=" + iin + "&params[city_check]=true", Method.GET);
                 IRestResponse response = GetResponse(GetClient(), request);
                 var error = response.ErrorException;
-                User data = new User(response.Content);
+                User data = null;
+                if (response.Content.Length > 2)
+                    data = new User(response.Content);
+                else
+                    throw new Exception("Service is on maintaince");
                 return data;
             }
             catch (Exception ex)

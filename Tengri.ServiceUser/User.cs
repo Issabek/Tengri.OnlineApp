@@ -5,7 +5,7 @@ namespace Tengri.ServiceUser
 {
     public class User
     {
-        //public string id { get; set; }
+        public int id { get; set; }
         /// <summary>
         /// password of each user
         /// </summary>
@@ -16,7 +16,7 @@ namespace Tengri.ServiceUser
         public string login { get; set; }
         public string fullname { get; set; }
         public DateTime createdate { get; set; }
-        public int status { get; set; }
+        public int status { get; set; } = 1;
         public int wrongpasscounter { get; set; }
         public string userIin { get; set; }
         public string lastName { get; set; }
@@ -36,9 +36,7 @@ namespace Tengri.ServiceUser
 
         public User() { }
         public User(string Content)
-        {
-            //CultureInfo provider = new CultureInfo("de-DE");
-            
+        {            
             string[] DataContent = Content
                 .Replace("}", "")
                 .Replace("{", "")

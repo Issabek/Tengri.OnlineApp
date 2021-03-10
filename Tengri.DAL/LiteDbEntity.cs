@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using log4net;
-using log4net.Config;
 using LiteDB;
 
 namespace Tengri.DAL
@@ -58,11 +56,8 @@ namespace Tengri.DAL
             {
                 using (var db = new LiteDatabase(ConnectionDb))
                 {
-                    int tempIndex = 0;
-                    var collection = db.GetCollection<T>(typeof(T).Name).Query().ToList();
-                    tempIndex = collection.FindIndex(x => x.Equals(data));
-                    collection[tempIndex] = data;
-
+                    var collection = db.GetCollection<T>(typeof(T).Name);
+                    collection.Update(data);
                 }
                 message = "Success";
                 return true;

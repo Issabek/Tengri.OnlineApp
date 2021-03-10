@@ -1,7 +1,7 @@
 ﻿using System;
-using Tengri.DAL;
 using System.Linq;
 using System.Collections.Generic;
+using Tengri.DAL;
 namespace Tengri.ServiceUser
 {
     public class ServicesUser
@@ -16,7 +16,7 @@ namespace Tengri.ServiceUser
             List<User> tempList = db.getCollection<User>();
             foreach (User user in tempList)
             {
-                Console.WriteLine(user.fullname+" "+user.userIin);
+                Console.WriteLine(user.firstName+" "+user.lastName+" "+user.userIin+" "+user.password);
             }
         }
         //1.User registration
@@ -35,10 +35,10 @@ namespace Tengri.ServiceUser
                 }
                 else
                 {
-                    user.fullname = user.lastName + " " + user.lastName;
-                    //user.id = user.userData.DocNumber;
+                    user.fullname = user.firstName + " " + user.lastName;
+                    user.id = 100000+db.getCollection<User>().Count();
                     user.createdate = DateTime.Now;
-                    //user.status temp user status
+                    db.update<User>(user, out tempStr);
                     return true;
                 }
             }
@@ -52,34 +52,73 @@ namespace Tengri.ServiceUser
                 return myUsers.Where(w => w.userIin == Iin ).FirstOrDefault();
             return null;
         }
+        public bool userDoesExist(int userID)
+        {
+            List<User> myUsers = db.getCollection<User>();
+            return myUsers.Where(w => w.id == userID).Any(); ;
+        }
+
         //3.User authorization
         public bool userAuthentication(string Iin, string password)
         {
-            if (userDoesExist(Iin) != null && userDoesExist(Iin).password==password)
+            if (userDoesExist(Iin) != null && userDoesExist(Iin).password == password)
             {
-                return true;
+                if(userDoesExist(Iin).wrongpasscounter!=3)
+                    return true;
+                else
+                {
+                    userBlock(userDoesExist(Iin));
+                    Console.WriteLine("Пользователь заблокирован!");
+                }
             }
-            else 
-                return false;
+
+            else if (userDoesExist(Iin) != null && userDoesExist(Iin).password != password)
+                userDoesExist(Iin).wrongpasscounter += 1;
+
+            return false;
         }
 
         //4.Password change
         public bool changeUserPassword(string Iin, string newPassword, string oldPassword)
         {
+            string tempStr = null;
             User user = userDoesExist(Iin);
             if (userAuthentication(Iin, oldPassword))
             {
+
                 user.password = newPassword;
+                db.update<User>(user, out tempStr);
                 return true;
             }
             return false;
         }
-        //5.Password vosst
+        //5.Password restore
+        public bool passwordRestore(string Iin)
+        {
+            Console.WriteLine("Enter your first and last name in order to get your account's password restored:\n Ex: Vasya Pupkin\n");
+            string FirstLast = Console.ReadLine();
+            string oldPassword = null, newPassword = null;
+            if(userDoesExist(Iin).firstName+" " + userDoesExist(Iin).lastName == FirstLast.ToUpper())
+            {
+                Console.Clear();
+                Console.WriteLine("Enter new password!");
+                newPassword= Console.ReadLine();
+                Console.WriteLine("Enter previous password!");
+                oldPassword = Console.ReadLine();
+                changeUserPassword(Iin,newPassword,oldPassword);
+            }
+            return false;
+        }
 
         //5.User block
-        //public accStatusUpdate(int statusId)
-        //{
-            
-        //}
+        public bool userBlock(User user, int defineStatus = 2)
+        {
+            Console.WriteLine(defineStatus==2?"Пользователь {0} заблокирован":"Пользователь {0} разбокирован", user.fullname);
+            user.status = defineStatus;
+            string errMsg = null;
+            db.update(user,out errMsg);
+            Console.ReadKey();
+            return true;
+        }
     }
 }
