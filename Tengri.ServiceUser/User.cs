@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-
 namespace Tengri.ServiceUser
 {
     public class User

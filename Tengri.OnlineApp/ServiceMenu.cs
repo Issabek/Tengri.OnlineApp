@@ -77,7 +77,7 @@ namespace Tengri.OnlineApp
                             Console.Clear();
                             Console.WriteLine("Данные верны!\nВведите новый пароль:");
                             password = Console.ReadLine();
-                            if(service.changeUserPassword(tempUser.userIin, password, tempUser.password))
+                            if (service.changeUserPassword(tempUser.userIin, password, tempUser.password))
                             {
                                 service.userBlock(tempUser, 1);
                                 Console.WriteLine("Пароль успешно изменен! Аккаунт разблокирован!");
@@ -94,30 +94,31 @@ namespace Tengri.OnlineApp
 
                         }
                     }
+                }
+                else
+                {
+                    Console.WriteLine("You have entered wrong password, in order to change it press Y, otherwise N");
+                    Char.TryParse(Console.ReadLine(), out yesNo);
+                    if (yesNo == 'y')
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Enter new password!");
+                        tempStr = Console.ReadLine();
+                        Console.WriteLine("Enter previous password!");
+                        password = Console.ReadLine();
+                        service.changeUserPassword(Iin, tempStr, password);
+                    }
                     else
                     {
-                        Console.WriteLine("You have entered wrong password, in order to change it press Y, otherwise N");
-                        Char.TryParse(Console.ReadLine(), out yesNo);
-                        if (yesNo == 'y')
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Enter new password!");
-                            tempStr = Console.ReadLine();
-                            Console.WriteLine("Enter previous password!");
-                            password = Console.ReadLine();
-                            service.changeUserPassword(Iin, tempStr, password);
-                        }
-                        else
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Перехожу в главное меню!\nНажмите Enter");
-                            Console.ReadKey();
-                            tengriUI();
-                        }
-
-
+                        Console.Clear();
+                        Console.WriteLine("Перехожу в главное меню!\nНажмите Enter");
+                        Console.ReadKey();
+                        tengriUI();
                     }
+
+
                 }
+                
                 service.showUsers();
                 Console.ReadKey();
             }

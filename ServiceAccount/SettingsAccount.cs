@@ -25,17 +25,28 @@ namespace ServiceAccount
             accounts = db.getCollection<Account>();
             return accounts.Where(w => w.userID == userId).ToList();
         }
-        //public bool CreateAccount(int userId, out Account account)
-        //{
-        //    if (userId <= 0)
-        //        throw new Exception("Неверные данные userID");
-        //    else if (service.userDoesExist(userId))
-        //    {
-
-        //    }
-
-
-        //}
+        public bool CreateAccount(int userId, out Account account)
+        {
+            account = new Account();
+            if (userId <= 0)
+                throw new Exception("Неверные данные userID");
+            else if (service.userDoesExist(userId))
+            {
+                Random rnd = new Random();
+                string tempStr = null;
+                account.userID = userId;
+                account.IBAN = "KZ" + rnd.Next(1000000, 9999999);
+                if(db.userCreate(account, out tempStr))
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(tempStr);
+                }
+            }
+            return false;
+        }
     }
     
 }

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tengri.ServiceUser", "Tengr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tengri.DAL", "Tengri.DAL\Tengri.DAL.csproj", "{44D8362B-81C0-46B1-955B-B6D9E6A33740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAccount", "ServiceAccount\ServiceAccount.csproj", "{65F5E28E-1C6B-49C4-AA01-0DD3C92AFFF0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tengri.ServiceAccount", "ServiceAccount\Tengri.ServiceAccount.csproj", "{65F5E28E-1C6B-49C4-AA01-0DD3C92AFFF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
