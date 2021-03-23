@@ -14,7 +14,7 @@ namespace Tengri.OnlineApp
         private static ILog log = LogManager.GetLogger("LOGGER");
         public static void tengriUI()
         {
-            ServicesUser service = new ServicesUser(@"myNewBank4.db");
+            ServicesUser service = new ServicesUser(@"tengriBank.db");
             Console.Clear();
             string Iin = null;
             string password = null;
@@ -40,7 +40,7 @@ namespace Tengri.OnlineApp
                 Console.WriteLine("4. Open/Create bank account");
                 Console.WriteLine("5. Show user accounts");
 
-                SettingsAccount accService = new SettingsAccount(@"myNewBank2.db");
+                SettingsAccount accService = new SettingsAccount(@"tengriBank.db");
                 tempStr = Console.ReadLine();
                 switch (Int32.Parse(tempStr))
                 {
@@ -99,13 +99,15 @@ namespace Tengri.OnlineApp
                             //Console.WriteLine("{0}. {1} --- {2}TENGE --- STATUS ID {3} ", listCounter++, account.IBAN, account.balance, account.status);
                             Console.WriteLine(account.ToString());
                         }
-                        Console.WriteLine("1. Пополнить счет\n2. Cнять деньги со счета");
+                        Console.WriteLine("1. Пополнить счет\n2. Cнять деньги со счета\n3. Показать историю счета");
                         yesNo =char.Parse(Console.ReadLine());
                         if (yesNo == '1')
                         {
                             Console.WriteLine("Введите номер счета для пополнения  :");
                             tempInt = Int32.Parse(Console.ReadLine());
-                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt + 1];
+                            if(tempInt>accService.GetUserAccounts(user.id).Count)
+                                throw new Exception("Произошла ошибка! Аккаунт не создан или не существует!");
+                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt - 1];
                             if (tempAcc != null)
                             {
                                 Console.Clear();
@@ -125,6 +127,28 @@ namespace Tengri.OnlineApp
                             {
                                 Console.Clear();
                                 accService.CashOut(user.id, tempAcc);
+                            }
+                            else
+                            {
+                                throw new Exception("Произошла ошибка! АккауHт не создан или не существует!");
+                            }
+                        }
+                        else if (yesNo == '3')
+                        {
+                            Console.WriteLine("Введите номер счета: ");
+                            tempInt = Int32.Parse(Console.ReadLine());
+                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt - 1];
+                            if (tempAcc != null)
+                            {
+                                Console.Clear();
+                                tempAcc.ToString();
+                                List<AccountBilling> templist = accService.Transactions(tempAcc);
+                                foreach(AccountBilling bill in templist)
+                                {
+                                    Console.WriteLine("\n\n\t{0}",bill.ToString());
+
+                                }
+                                Console.ReadKey();
                             }
                             else
                             {

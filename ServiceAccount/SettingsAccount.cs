@@ -24,7 +24,7 @@ namespace ServiceAccount
             }
         }
 
-        
+
         /// <summary>
         /// Метод возвращает список счетоп пользователя
         /// </summary>
@@ -56,11 +56,28 @@ namespace ServiceAccount
             {
                 string errMsg = null;
                 double MoneyToAdd = 0;
-                Console.WriteLine("Введите сумму пополнения в {0}: ",account.IBAN.Substring(0,2));
+                Console.WriteLine("Введите сумму пополнения в {0}: ", account.IBAN.Substring(0, 2));
                 MoneyToAdd = double.Parse(Console.ReadLine());
                 account.balance += MoneyToAdd;
-                db.update<Account>(account, out errMsg);
-                return true;
+                AccountBilling tempBill = new AccountBilling();
+                if (db.userCreate<AccountBilling>(tempBill, out errMsg)
+)
+                {
+                    Console.WriteLine("Транзакция пользователя {0} успешно произведена", service.showSingleUser(userId).firstName);
+                    tempBill.UserId = userId;
+                    tempBill.AccId = account.id;
+                    tempBill.MoneyDelta = MoneyToAdd;
+                    tempBill.UserId = userId;
+                    tempBill.TransactionType = AccountBilling.BillType.IN;
+                    db.update<AccountBilling>(tempBill, out errMsg);
+                    db.update<Account>(account, out errMsg);
+                    
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(errMsg);
+                }
             }
             return false;
         }
@@ -78,14 +95,43 @@ namespace ServiceAccount
                 {
                     Console.WriteLine("Недостаточно денег на счете!");
                 }
-                else 
+                else
                     account.balance -= MoneyToOut;
-                db.update<Account>(account, out errMsg);
-                return true;
+                AccountBilling tempBill = new AccountBilling();
+                if (db.userCreate<AccountBilling>(tempBill, out errMsg)
+                )
+                {
+                    Console.WriteLine("Транзакция пользователя {0} успешно произведена", service.showSingleUser(userId).firstName);
+                    tempBill.UserId = userId;
+                    tempBill.UserId = userId;
+                    tempBill.AccId = account.id;
+                    tempBill.MoneyDelta = MoneyToOut;
+                    tempBill.UserId = userId;
+                    tempBill.TransactionType = AccountBilling.BillType.OUT;
+                    db.update<AccountBilling>(tempBill, out errMsg);
+                    db.update<Account>(account, out errMsg);
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(errMsg);
+                }
             }
             return false;
         }
 
+        public List<AccountBilling> Transactions(Account account)
+        {
+            List<AccountBilling> lst = new List<AccountBilling>();
+            foreach(AccountBilling bill in db.getCollection<AccountBilling>())
+            {
+                if(bill.AccId == account.id && account.userID==bill.UserId)
+                {
+                    lst.Add(bill);
+                }
+            }
+            return lst;
+        }
 
         public bool CreateAccount(int userId, out Account account)
         {

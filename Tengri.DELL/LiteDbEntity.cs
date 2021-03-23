@@ -21,12 +21,11 @@ namespace Tengri.DAL
         {
             using (var db = new LiteDatabase(ConnectionDb))
             {
-                var myObj = db.GetCollection<T>(typeof(T).Name);
-
-                if (myObj == null)
+                if (db.GetCollection<T>(typeof(T).Name).FindAll().ToList() == null)
                     throw new Exception("Object is null");
+                List<T> myObj = db.GetCollection<T>(typeof(T).Name).FindAll().ToList(); ;
 
-                return myObj.FindAll().ToList();
+                return myObj;
 
             }
         }
@@ -39,7 +38,6 @@ namespace Tengri.DAL
                 {
                     var collection = db.GetCollection<T>(typeof(T).Name);
                     collection.Insert(data);
-                    collection.EnsureIndex("Id");
                 }
                 message = "Success";
                 return true;
