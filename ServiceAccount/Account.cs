@@ -29,7 +29,7 @@ namespace ServiceAccount
                 switch (AccountTypeID)
                 {
                     case 1:
-                        return "Тукущий счет";
+                        return "Текущий счет";
                     case 2:
                         return "Кредитный щсчет";
                     case 3:

@@ -10,16 +10,10 @@ namespace ServiceAccount
     {
         private Tengri.DAL.LiteDbEntity db = null;
         private ServicesUser service = null;
-        public List<AccountType> AccountsType;
         public SettingsAccount(string connectionString)
         {
             db = new Tengri.DAL.LiteDbEntity(connectionString);
             service = new ServicesUser(connectionString);
-            AccountsType = new List<AccountType>()
-            {
-                new AccountType(){Id=1,Name="Loan"},
-                new AccountType(){Id=2,Name="Credit" }
-            };
         }
 
         public List<Account> this[int index, int userId]
@@ -86,6 +80,7 @@ namespace ServiceAccount
                 account.userID = user.id;
                 account.status = user.status;
                 account.IBAN = "KZ" + rnd.Next(1000000, 9999999);
+                account.AccountTypeID = rnd.Next(4);
                 if(db.userCreate(account, out tempStr))
                 {
                     Console.WriteLine("Счет для пользователя {0} успешно создан", service.showSingleUser(userId).firstName);
