@@ -69,7 +69,7 @@ namespace Tengri.ServiceUser
         {
             if (userDoesExist(Iin) != null && userDoesExist(Iin).password == password)
             {
-                if(userDoesExist(Iin).wrongpasscounter!=3)
+                if (userDoesExist(Iin).wrongpasscounter < 3)
                     return true;
                 else
                 {
@@ -79,7 +79,16 @@ namespace Tengri.ServiceUser
             }
 
             else if (userDoesExist(Iin) != null && userDoesExist(Iin).password != password)
-                userDoesExist(Iin).wrongpasscounter += 1;
+            {
+                string tempMsg = null;
+                User tempUser = userDoesExist(Iin);
+                tempUser.wrongpasscounter = tempUser.wrongpasscounter + 1;
+                db.update<User>(tempUser, out tempMsg);
+                tempUser = userDoesExist(Iin);
+
+            }
+
+
 
             return false;
         }
@@ -89,10 +98,11 @@ namespace Tengri.ServiceUser
         {
             string tempStr = null;
             User user = userDoesExist(Iin);
-            if (userAuthentication(Iin, oldPassword))
+            if (userDoesExist(Iin).password==oldPassword)
             {
 
                 user.password = newPassword;
+                user.wrongpasscounter = 0;
                 db.update<User>(user, out tempStr);
                 return true;
             }

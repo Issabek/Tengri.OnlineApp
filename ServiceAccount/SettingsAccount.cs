@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tengri.ServiceUser;
+using Tengri.ServiceAccount;
 
 namespace ServiceAccount
 {
@@ -9,11 +10,27 @@ namespace ServiceAccount
     {
         private Tengri.DAL.LiteDbEntity db = null;
         private ServicesUser service = null;
+        public List<AccountType> AccountsType;
         public SettingsAccount(string connectionString)
         {
             db = new Tengri.DAL.LiteDbEntity(connectionString);
             service = new ServicesUser(connectionString);
+            AccountsType = new List<AccountType>()
+            {
+                new AccountType(){Id=1,Name="Loan"},
+                new AccountType(){Id=2,Name="Credit" }
+            };
         }
+
+        public List<Account> this[int index, int userId]
+        {
+            get
+            {
+                return GetUserAccounts(userId).Where(w => w.AccountTypeID == index).ToList();
+            }
+        }
+
+        
         /// <summary>
         /// Метод возвращает список счетоп пользователя
         /// </summary>
@@ -29,6 +46,33 @@ namespace ServiceAccount
             }
             return accounts.ToList();
         }
+
+
+        /// <summary>
+        /// Добавляет необходимое количество денег
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        public bool AddMoney(int userId, Account account)
+        {
+            if (userId <= 0)
+                throw new Exception("Неверные данные userID");
+            else if (service.userDoesExist(userId))
+            {
+                string errMsg = null;
+                double MoneyToAdd = 0;
+                Console.WriteLine("Введите сумму пополнения в {0}: ",account.IBAN.Substring(0,2));
+                MoneyToAdd = double.Parse(Console.ReadLine());
+                account.balance += MoneyToAdd;
+                db.update<Account>(account, out errMsg);
+                return true;
+            }
+            return false;
+        }
+
+
+
         public bool CreateAccount(int userId, out Account account)
         {
             account = new Account();

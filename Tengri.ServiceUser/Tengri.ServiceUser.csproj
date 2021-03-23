@@ -5,9 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tengri.DAL\Tengri.DAL.csproj" />
+    <PackageReference Include="RestSharp" Version="106.11.7" />
+    <PackageReference Include="log4net" Version="2.0.12" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="RestSharp" Version="106.11.7" />
+    <ProjectReference Include="..\Tengri.DELL\Tengri.DAL.csproj" />
   </ItemGroup>
 </Project>

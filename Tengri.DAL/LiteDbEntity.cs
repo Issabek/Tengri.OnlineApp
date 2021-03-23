@@ -18,19 +18,20 @@ namespace Tengri.DAL
         }
 
         public List<T> getCollection<T>()
-        {
-            using (var db = new LiteDatabase(ConnectionDb))
-            {
-                var myObj = db.GetCollection<T>(typeof(T).Name);
-                //if (myObj.Count() > 0)
-                //{
+        {            
+                using (var db = new LiteDatabase(ConnectionDb))
+                {
+                    var myObj = db.GetCollection<T>(typeof(T).Name);
+                
+                    if (myObj == null)
+                        throw new Exception("Object is null");
+
                     return myObj.FindAll().ToList();
-                //}
-                //return null;
-            }
+
+                }            
         }
 
-        public bool userCreate<T>(T data, out string message)
+        public bool CreateRecord<T>(T data, out string message)
         {            
             try
             {
@@ -38,7 +39,8 @@ namespace Tengri.DAL
                 {
                     var collection = db.GetCollection<T>(typeof(T).Name);
                     collection.Insert(data);
-                    collection.EnsureIndex("password");
+                    collection.EnsureIndex("RateRecord");
+                    List<T> tempList = collection.FindAll().ToList();
                 }
                 message = "Success";
                 return true;
@@ -50,7 +52,7 @@ namespace Tengri.DAL
             }
         }
 
-        public bool update<T>(T data, out string message)
+        public bool UpdateRecord<T>(T data, out string message)
         {
             try
             {

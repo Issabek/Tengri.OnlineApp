@@ -4,6 +4,8 @@ using log4net;
 using log4net.Config;
 using ServiceAccount;
 using System.Collections.Generic;
+using Tengri.ServiceAccount;
+using System.Threading;
 
 namespace Tengri.OnlineApp
 {
@@ -12,11 +14,12 @@ namespace Tengri.OnlineApp
         private static ILog log = LogManager.GetLogger("LOGGER");
         public static void tengriUI()
         {
-            ServicesUser service = new ServicesUser(@"myNewBank3.db");
+            ServicesUser service = new ServicesUser(@"myNewBank4.db");
             Console.Clear();
             string Iin = null;
             string password = null;
             string tempStr = null;
+            int tempInt = 0;
             char yesNo = ' ';
             Random rnd = new Random();
             User user = null;
@@ -35,6 +38,8 @@ namespace Tengri.OnlineApp
                 Console.WriteLine("2. Block your account");
                 Console.WriteLine("3. Leave account");
                 Console.WriteLine("4. Open/Create bank account");
+                Console.WriteLine("5. Show user accounts");
+
                 SettingsAccount accService = new SettingsAccount(@"myNewBank2.db");
                 tempStr = Console.ReadLine();
                 switch (Int32.Parse(tempStr))
@@ -55,12 +60,9 @@ namespace Tengri.OnlineApp
                         break;
                     case 4:
                         Console.Clear();
-                        int listCounter = 1;
                         List<Account> userAccs = accService.GetUserAccounts(user.id);
                         if (userAccs.Count > 0 && userAccs!=null)
                         {
-                            foreach (var account in accService.GetUserAccounts(user.id))
-                                Console.WriteLine("{0}. {1} --- {2}TENGE --- STATUS ID {3} ", listCounter++, account.IBAN, account.balance, account.status);
                             Console.WriteLine("Хотите создать новый счет?");
                             yesNo = char.Parse(Console.ReadLine());
                             if (yesNo == 'y')
@@ -76,15 +78,51 @@ namespace Tengri.OnlineApp
                             yesNo = char.Parse(Console.ReadLine());
                             if (yesNo == 'y')
                             {
-                                Console.Clear();
-                                Account tempAccount = new Account();
-                                accService.CreateAccount(user.id,out tempAccount);
+                                try
+                                {
+                                    Console.Clear();
+                                    Account tempAccount = new Account();
+                                    accService.CreateAccount(user.id, out tempAccount);
+                                    Console.WriteLine("Новый счет успешно создан!");
+                                }
+                                catch(Exception ex)
+                                {
+                                    Console.WriteLine("Произошла ошибка! Новый счет не создан");
+                                    log.Error(ex.Message);
+                                }
                             }
-;                        }
+                        }
+                        break;
+                    case 5:
+                        foreach (var account in accService.GetUserAccounts(user.id))
+                        {
+                            //Console.WriteLine("{0}. {1} --- {2}TENGE --- STATUS ID {3} ", listCounter++, account.IBAN, account.balance, account.status);
+                            Console.WriteLine(account.ToString());
+                        }
+                        Console.WriteLine("Пополнить счет?");
+                        yesNo =char.Parse(Console.ReadLine());
+                        if (yesNo == 'y')
+                        {
+                            Console.WriteLine("Введите номер счета для пополнения  :");
+                            tempInt = Int32.Parse(Console.ReadLine());
+                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt];
+                            if (tempAcc != null)
+                            {
+                                Console.Clear();
+                                accService.AddMoney(user.id, tempAcc);
+                            }
+                            else
+                            {
+                                throw new Exception("Произошла ошибка! АккауHт не создан или не существует!");
+                            }
+
+                        }
                         break;
                     default:
                         break;
                 }
+                Console.Clear();
+                tengriUI();
             }
             else
             {
@@ -103,28 +141,42 @@ namespace Tengri.OnlineApp
                     Char.TryParse(Console.ReadLine(), out yesNo);
                     if (yesNo == 'y')
                     {
-                        Console.WriteLine("Введите ИИН и фамилию через пробел, для того чтобы разблокировать пользователя!");
-                        tempStr = Console.ReadLine();
-                        User tempUser = service.userDoesExist(tempStr.Split(' ')[0]);
-                        if (tempUser.lastName == (tempStr.Split(' ')[1]).ToUpper()) //Сравниваем данные имени и иина
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Данные верны!\nВведите новый пароль:");
-                            password = Console.ReadLine();
-                            if (service.changeUserPassword(tempUser.userIin, password, tempUser.password))
+                        try {
+                            Console.WriteLine("Введите ИИН и фамилию через пробел, для того чтобы разблокировать пользователя!");
+                            tempStr = Console.ReadLine();
+                            User tempUser = service.userDoesExist(tempStr.Split(' ')[0]);
+                            if (tempUser.lastName == (tempStr.Split(' ')[1]).ToUpper()) //Сравниваем данные имени и иина
                             {
-                                service.userBlock(tempUser, 1);
-                                Console.WriteLine("Пароль успешно изменен! Аккаунт разблокирован!");
-                                tengriUI();
+                                Console.Clear();
+                                Console.WriteLine("Данные верны!\nВведите новый пароль:");
+                                password = Console.ReadLine();
+                                if (service.changeUserPassword(tempUser.userIin, password, tempUser.password))
+                                {
+                                    tempUser = service.userDoesExist(tempStr.Split(' ')[0]);
+                                    service.userBlock(tempUser, 1);
+                                    Console.WriteLine("Пароль успешно изменен! Аккаунт разблокирован!");
+                                    tengriUI();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Что-то пошло не так!");
+                                }
                             }
                             else
                             {
-                                Console.WriteLine("Что-то пошло не так!");
+                                Console.WriteLine("Такого пользователя не существует либо данные введены неправильно!");
+
                             }
                         }
-                        else
+                        catch
                         {
-                            Console.WriteLine("Такого пользователя не существует либо данные введены неправильно!");
+                            log.Error("Неверный иин");
+                            Console.WriteLine("Вы ввели неверный ИИН!");
+                            Thread.Sleep(3000);
+                            Console.Clear();
+                            Console.WriteLine("Перенаправляю в главное меню");
+                            Thread.Sleep(2000);
+                            tengriUI();
 
                         }
                     }
@@ -132,6 +184,8 @@ namespace Tengri.OnlineApp
                 else
                 {
                     Console.WriteLine("You have entered wrong password, in order to change it press Y, otherwise N");
+                    //service.userDoesExist(Iin).wrongpasscounter++;
+                    //service.u
                     Char.TryParse(Console.ReadLine(), out yesNo);
                     if (yesNo == 'y')
                     {
