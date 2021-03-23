@@ -99,13 +99,13 @@ namespace Tengri.OnlineApp
                             //Console.WriteLine("{0}. {1} --- {2}TENGE --- STATUS ID {3} ", listCounter++, account.IBAN, account.balance, account.status);
                             Console.WriteLine(account.ToString());
                         }
-                        Console.WriteLine("Пополнить счет?");
+                        Console.WriteLine("1. Пополнить счет\n2. Cнять деньги со счета");
                         yesNo =char.Parse(Console.ReadLine());
-                        if (yesNo == 'y')
+                        if (yesNo == '1')
                         {
                             Console.WriteLine("Введите номер счета для пополнения  :");
                             tempInt = Int32.Parse(Console.ReadLine());
-                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt];
+                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt + 1];
                             if (tempAcc != null)
                             {
                                 Console.Clear();
@@ -115,9 +115,23 @@ namespace Tengri.OnlineApp
                             {
                                 throw new Exception("Произошла ошибка! АккауHт не создан или не существует!");
                             }
-
                         }
-                        break;
+                        else if (yesNo == '2')
+                        {
+                            Console.WriteLine("Введите номер счета для обналичивания денег  :");
+                            tempInt = Int32.Parse(Console.ReadLine());
+                            Account tempAcc = accService.GetUserAccounts(user.id)[tempInt-1];
+                            if (tempAcc != null)
+                            {
+                                Console.Clear();
+                                accService.CashOut(user.id, tempAcc);
+                            }
+                            else
+                            {
+                                throw new Exception("Произошла ошибка! АккауHт не создан или не существует!");
+                            }
+                        }
+                            break;
                     default:
                         break;
                 }

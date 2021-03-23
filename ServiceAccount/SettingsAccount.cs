@@ -64,7 +64,27 @@ namespace ServiceAccount
             }
             return false;
         }
-
+        public bool CashOut(int userId, Account account)
+        {
+            if (userId <= 0)
+                throw new Exception("Неверные данные userID");
+            else if (service.userDoesExist(userId))
+            {
+                string errMsg = null;
+                double MoneyToOut = 0;
+                Console.WriteLine("Введите сумму обналичивания в {0}: ", account.IBAN.Substring(0, 2));
+                MoneyToOut = double.Parse(Console.ReadLine());
+                if (MoneyToOut > account.balance)
+                {
+                    Console.WriteLine("Недостаточно денег на счете!");
+                }
+                else 
+                    account.balance -= MoneyToOut;
+                db.update<Account>(account, out errMsg);
+                return true;
+            }
+            return false;
+        }
 
 
         public bool CreateAccount(int userId, out Account account)
